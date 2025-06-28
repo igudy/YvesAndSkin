@@ -1,162 +1,170 @@
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { Search, Briefcase, Menu, X, ChevronDown } from "lucide-react";
 import logo from "../assets/icon.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Nav = () => {
   const [isOpen, setIsOpen] = useState(false);
-  // const [_, setIsServiceDropdownOpen] = useState(false);
-  // const toggleServiceDropdown = () => setIsServiceDropdownOpen((prev) => !prev);
+  const location = useLocation();
   const toggleMenu = () => setIsOpen((prev) => !prev);
 
+  // Check if current path matches the link
+  const isActive = (path) => location.pathname === path;
+
+  const navLinks = [
+    { path: "/", label: "Home" },
+    { path: "/AboutPage", label: "About" },
+    { path: "/ContactPage", label: "Contact" },
+  ];
+
+  const mobileNavVariants = {
+    open: {
+      opacity: 1,
+      height: "auto",
+      transition: {
+        staggerChildren: 0.1,
+        when: "beforeChildren",
+      },
+    },
+    closed: {
+      opacity: 0,
+      height: 0,
+      transition: {
+        staggerChildren: 0.05,
+        staggerDirection: -1,
+        when: "afterChildren",
+      },
+    },
+  };
+
+  const mobileLinkVariants = {
+    open: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        y: { stiffness: 1000, velocity: -100 },
+      },
+    },
+    closed: {
+      y: 50,
+      opacity: 0,
+      transition: {
+        y: { stiffness: 1000 },
+      },
+    },
+  };
+
   return (
-    <nav
-      className="bg-white/80 backdrop-blur-md shadow-sm
-     px-4 py-4 fixed top-0 left-0 right-0 z-50"
-    >
+    <nav className="bg-white/80 backdrop-blur-md shadow-sm px-4 py-4 fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link
           to="/"
           className="flex items-center gap-2 text-lg font-semibold text-gray-800"
         >
-          <img src={logo} alt="Logo" className="w-6 h-6" />
+          <motion.img
+            src={logo}
+            alt="Logo"
+            className="w-6 h-6"
+            whileHover={{ rotate: 15 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          />
           <span>
             YVES<span className="text-orange-500">&</span>SKIN
           </span>
         </Link>
 
         {/* Desktop Nav */}
-        <div
-          className="hidden md:flex items-center gap-8 
-        text-sm font-medium text-gray-600"
-        >
-          <Link to="/" className="hover:text-orange-500 transition">
-            Home
-          </Link>
-
-          {/* <div className="relative">
-            <button
-              onClick={toggleServiceDropdown}
-              className="flex items-center gap-1 hover:text-orange-500 transition"
+        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
+          {navLinks.map((link) => (
+            <motion.div
+              key={link.path}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              Services <ChevronDown size={16} />
-            </button>
-            {isServiceDropdownOpen && (
-              <div
-                className="absolute left-0 top-10 bg-white shadow-md 
-              rounded-md overflow-hidden z-50 w-36"
+              <Link
+                to={link.path}
+                className={`relative transition-colors hover:text-orange-500 ${
+                  isActive(link.path) ? "font-bold text-orange-500" : ""
+                }`}
               >
-                <Link
-                  to="/ServicePage"
-                  className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-800"
-                  onClick={() => setIsServiceDropdownOpen(false)}
-                >
-                  SPA
-                </Link>
-                <Link
-                  to="/MakeupPage"
-                  className="block px-4 py-2 text-sm hover:bg-gray-100 text-gray-800"
-                  onClick={() => setIsServiceDropdownOpen(false)}
-                >
-                  Makeup
-                </Link>
-              </div>
-            )}
-          </div> */}
-
-          <Link to="/AboutPage" className="hover:text-orange-500 transition">
-            About
-          </Link>
-          <Link to="/ContactPage" className="hover:text-orange-500 transition">
-            Contact
-          </Link>
+                {link.label}
+                {isActive(link.path) && (
+                  <motion.span
+                    layoutId="navActiveIndicator"
+                    className="absolute left-0 -bottom-1 w-full h-0.5 bg-orange-500"
+                    initial={false}
+                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  />
+                )}
+              </Link>
+            </motion.div>
+          ))}
         </div>
 
         {/* Actions */}
         <div className="hidden md:flex items-center gap-4">
-          {/* <Search className="w-5 h-5 text-gray-500 hover:text-orange-500 cursor-pointer" />
-          <Briefcase className="w-5 h-5 text-gray-500 hover:text-orange-500 cursor-pointer" /> */}
-          <Link
-            to="/LoginPage"
-            className="bg-black text-white px-4 py-2 text-sm rounded-lg hover:bg-orange-500 transition"
-          >
-            Login
+          <Link to="/LoginPage" className="relative overflow-hidden">
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-black text-white px-4 py-2 text-sm rounded-lg hover:bg-orange-500 transition"
+            >
+              Login
+            </motion.div>
           </Link>
         </div>
 
         {/* Mobile Hamburger */}
-        <button
+        <motion.button
           onClick={toggleMenu}
           className="md:hidden text-gray-600 hover:text-orange-500"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        </motion.button>
       </div>
 
       {/* Mobile Nav */}
-      {isOpen && (
-        <div
-          className="md:hidden mt-4 space-y-2 bg-white rounded-md
-         shadow-md py-4 px-4 transition-all duration-300"
+      <motion.div
+        className="md:hidden overflow-hidden"
+        initial="closed"
+        animate={isOpen ? "open" : "closed"}
+        variants={mobileNavVariants}
+      >
+        <motion.div
+          className="mt-4 space-y-2 bg-white rounded-md shadow-md py-4 px-4"
+          variants={mobileNavVariants}
         >
-          <Link
-            to="/"
-            className="block py-2 text-gray-700 hover:text-orange-500"
-          >
-            Home
-          </Link>
+          {navLinks.map((link) => (
+            <motion.div key={link.path} variants={mobileLinkVariants}>
+              <Link
+                to={link.path}
+                onClick={() => setIsOpen(false)}
+                className={`block py-2 transition-colors ${
+                  isActive(link.path)
+                    ? "font-bold text-orange-500"
+                    : "text-gray-700 hover:text-orange-500"
+                }`}
+              >
+                {link.label}
+              </Link>
+            </motion.div>
+          ))}
 
-          {/* <div>
-            <button
-              onClick={toggleServiceDropdown}
-              className="w-full text-left flex cursor-pointer justify-between 
-              items-center py-2 text-gray-700 hover:text-orange-500"
-            >
-              Services <ChevronDown size={18} />
-            </button>
-            {isServiceDropdownOpen && (
-              <div className="pl-4 space-y-2 mt-1">
-                <Link
-                  to="/ServicePage"
-                  className="block text-sm text-gray-600 hover:text-orange-500"
-                >
-                  SPA
-                </Link>
-                <Link
-                  to="/MakeupPage"
-                  className="block text-sm text-gray-600 hover:text-orange-500"
-                >
-                  Makeup
-                </Link>
-              </div>
-            )}
-          </div> */}
-
-          <Link
-            to="/AboutPage"
-            className="block py-2 text-gray-700 hover:text-orange-500"
-          >
-            About
-          </Link>
-          <Link
-            to="/ContactPage"
-            className="block py-2 text-gray-700 hover:text-orange-500"
-          >
-            Contact
-          </Link>
-
-          <div className="pt-4 border-t">
+          <motion.div className="pt-4 border-t" variants={mobileLinkVariants}>
             <Link
               to="/LoginPage"
-              className="block w-full bg-black text-white text-center
-               py-2 rounded-md hover:bg-orange-500 transition"
+              onClick={() => setIsOpen(false)}
+              className="block w-full bg-black text-white text-center py-2 rounded-md hover:bg-orange-500 transition"
             >
               Login
             </Link>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </nav>
   );
 };
